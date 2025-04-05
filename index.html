@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketBot Pro - Sistema de Tickets para Discord</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Proteção contra inspeção de código -->
+    <script>
+        // Bloquear teclas de desenvolvimento
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) {
+                return false;
+            }
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
+                return false;
+            }
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
+                return false;
+            }
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
+                return false;
+            }
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
+                return false;
+            }      
+        }
+        
+        // Verificação contínua para ferramentas de desenvolvedor
+        setInterval(function() {
+            const devtoolsOpen = function() {
+                let widthThreshold = window.outerWidth - window.innerWidth > 160;
+                let heightThreshold = window.outerHeight - window.innerHeight > 160;
+                return widthThreshold || heightThreshold;
+            };
+            
+            if(devtoolsOpen()) {
+                document.body.innerHTML = 'Inspeção de código não permitida.';
+            }
+        }, 1000);
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <nav>
+            <div class="logo">
+                <i class="fas fa-ticket-alt"></i>
+                <span>TicketBot</span>
+            </div>
+            <ul>
+                <li><a href="#home">Início</a></li>
+                <li><a href="#features">Recursos</a></li>
+                <li><a href="#pricing">Preços</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1>TicketBot Pro</h1>
+            <p class="subtitle">Sistema profissional de tickets para seu servidor Discord</p>
+            <div class="cta-buttons">
+                <a href="#pricing" class="btn primary">Comprar Agora</a>
+                <a href="#features" class="btn secondary">Ver Recursos</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="assets/bot-preview.png" alt="Preview do Bot">
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2>Recursos Principais</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <i class="fas fa-ticket-alt"></i>
+                <h3>Sistema de Tickets</h3>
+                <p>Interface moderna e intuitiva para gerenciamento de tickets</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-clock"></i>
+                <h3>Cooldown Inteligente</h3>
+                <p>Controle automático de spam e múltiplos tickets</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-star"></i>
+                <h3>Sistema de Avaliação</h3>
+                <p>Feedback dos usuários após cada atendimento</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-file-alt"></i>
+                <h3>Transcrição</h3>
+                <p>Registro completo de todas as conversas</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Segurança</h3>
+                <p>Controle total de permissões e acessos</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Logs Detalhados</h3>
+                <p>Acompanhamento de todas as atividades</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing">
+        <h2>Plano Disponível</h2>
+        <div class="pricing-cards">
+            <div class="pricing-card">
+                <div class="card-header">
+                    <h3>Básico</h3>
+                    <p class="price">R$ 10</p>
+                </div>
+                <ul>
+                    <li><i class="fas fa-check"></i> Sistema de Tickets</li>
+                    <li><i class="fas fa-check"></i> Interface Moderna</li>
+                    <li><i class="fas fa-check"></i> Cooldown</li>
+                    <li><i class="fas fa-check"></i> Logs Básicos</li>
+                    <li><i class="fas fa-check"></i> Suporte Básico</li>
+                </ul>
+                <a href="checkout.html" class="btn primary">Comprar</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>TicketBot Pro</h4>
+                <p>Sistema profissional de tickets para Discord</p>
+            </div>
+            <div class="footer-section">
+                <h4>Links Rápidos</h4>
+                <ul>
+                    <li><a href="#home">Início</a></li>
+                    <li><a href="#features">Recursos</a></li>
+                    <li><a href="#pricing">Preços</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Redes Sociais</h4>
+                <div class="social-links">
+                    <a href="https://discord.gg/rvQf6cqE"><i class="fab fa-discord"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 TicketBot Pro. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html> 

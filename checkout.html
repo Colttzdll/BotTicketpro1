@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - TicketBot Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="checkout.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Proteção contra inspeção de código -->
+    <script>
+        // Bloquear teclas de desenvolvimento
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) {
+                return false;
+            }
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
+                return false;
+            }
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
+                return false;
+            }
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
+                return false;
+            }
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
+                return false;
+            }      
+        }
+        
+        // Verificação contínua para ferramentas de desenvolvedor
+        setInterval(function() {
+            const devtoolsOpen = function() {
+                let widthThreshold = window.outerWidth - window.innerWidth > 160;
+                let heightThreshold = window.outerHeight - window.innerHeight > 160;
+                return widthThreshold || heightThreshold;
+            };
+            
+            if(devtoolsOpen()) {
+                document.body.innerHTML = 'Inspeção de código não permitida.';
+            }
+        }, 1000);
+    </script>
+</head>
+<body>
+    <div class="checkout-container">
+        <div class="checkout-card">
+            <div class="checkout-header">
+                <i class="fas fa-ticket-alt"></i>
+                <h1>Finalizar Compra</h1>
+            </div>
+
+            <div class="order-summary">
+                <h2>Resumo do Pedido</h2>
+                <div class="product-details">
+                    <span>TicketBot Pro - Plano Básico</span>
+                    <span>R$ 10,00</span>
+                </div>
+                <div class="total">
+                    <strong>Total:</strong>
+                    <strong>R$ 10,00</strong>
+                </div>
+            </div>
+
+            <div class="payment-section" id="paymentSection">
+                <h2>Pagamento via PIX</h2>
+                <div class="pix-container">
+                    <div class="qr-code">
+                        <img src="" alt="QR Code PIX" id="qrCode">
+                    </div>
+                    <div class="pix-info">
+                        <p>Escaneie o QR Code acima ou copie a chave PIX abaixo:</p>
+                        <div class="pix-key">
+                            <input type="text" id="pixKey" value="" readonly>
+                            <button onclick="copyPixKey()" class="btn secondary">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                        <div class="pix-payload">
+                            <p>Ou copie o código PIX Copia e Cola:</p>
+                            <textarea id="pixPayload" readonly></textarea>
+                            <button onclick="copyPixPayload()" class="btn secondary">
+                                <i class="fas fa-copy"></i> Copiar Código
+                            </button>
+                        </div>
+                        <div class="transaction-info" id="transactionInfo" style="display: none;">
+                            <p><strong>ID da Transação:</strong> <span id="transactionId"></span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="payment-status" id="paymentStatus">
+                    <p>⏳ Aguardando pagamento...</p>
+                    <div class="status-bar">
+                        <div class="status-progress"></div>
+                    </div>
+                    <p class="timeout-warning">Tempo restante: <span id="timeRemaining">10:00</span></p>
+                    <button onclick="cancelAndReturn()" class="btn cancel">
+                        <i class="fas fa-times"></i> Cancelar compra
+                    </button>
+                </div>
+
+                <div class="payment-instructions">
+                    <h3>Como pagar:</h3>
+                    <ol>
+                        <li>Abra o app do seu banco</li>
+                        <li>Escolha pagar via PIX</li>
+                        <li>Escaneie o QR Code ou cole a chave PIX</li>
+                        <li>Confirme o valor de R$ 10,00</li>
+                        <li>Conclua o pagamento</li>
+                    </ol>
+                    
+                    <!-- Apenas para testes - remover em produção -->
+                    <div class="test-payment" style="display: none;">
+                        <button id="simulatePaymentBtn" class="btn secondary">
+                            <i class="fas fa-magic"></i> Simular Pagamento (Teste)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="canceled-message" id="canceledMessage" style="display: none;">
+                <i class="fas fa-times-circle"></i>
+                <h2>Pagamento Cancelado</h2>
+                <p>O tempo para pagamento expirou (10 minutos).</p>
+                <a href="checkout.html" class="btn primary">
+                    <i class="fas fa-redo"></i> Tentar Novamente
+                </a>
+            </div>
+
+            <div class="success-message" id="successMessage" style="display: none;">
+                <i class="fas fa-check-circle"></i>
+                <h2>Pagamento Confirmado!</h2>
+                <p>Entre em contato com <strong>kyz28</strong> no Discord para ativar seu bot.</p>
+                <a href="https://discord.gg/rvQf6cqE" class="btn primary">
+                    <i class="fab fa-discord"></i> Abrir Discord
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmação de cancelamento personalizada -->
+    <div id="cancelModal" class="custom-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-question-circle"></i>
+                <h3>Confirmar Cancelamento</h3>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja cancelar a compra?</p>
+                <p class="modal-sub">Sua transação será cancelada e você voltará para a página inicial.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirmCancel" class="btn danger">Sim, cancelar</button>
+                <button id="cancelCancel" class="btn secondary">Não, continuar comprando</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rodapé com Copyright -->
+    <footer class="checkout-footer">
+        <p>&copy; 2025 TicketBot Pro. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        let checkPaymentInterval;
+        let currentTransactionId = null;
+        let paymentTimeoutId;
+        let timeoutMinutes = 10;
+        let secondsRemaining = timeoutMinutes * 60;
+        let timerInterval;
+
+        // Inicia o processo de checkout
+        window.onload = async function() {
+            try {
+                // Criar uma nova transação
+                const response = await fetch('/api/create-transaction', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: 10.00,
+                        plan: 'básico'
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentTransactionId = data.transactionId;
+                    document.getElementById('transactionId').textContent = currentTransactionId;
+                    document.getElementById('transactionInfo').style.display = 'block';
+                    
+                    // Atualiza o QR code e informações PIX
+                    document.getElementById('qrCode').src = data.qrCodeUrl;
+                    document.getElementById('pixKey').value = data.pixKey;
+                    document.getElementById('pixPayload').value = data.pixPayload;
+                    
+                    // Inicia a verificação de pagamento
+                    startPaymentCheck();
+                    
+                    // Inicia o timer de expiração
+                    startExpirationTimer();
+                } else {
+                    alert('Erro ao iniciar a transação: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Erro ao iniciar transação:', error);
+                alert('Ocorreu um erro ao iniciar a transação. Por favor, tente novamente.');
+            }
+        };
+
+        function startPaymentCheck() {
+            if (!currentTransactionId) return;
+            
+            checkPaymentInterval = setInterval(() => {
+                checkPaymentStatus();
+            }, 5000); // Verifica a cada 5 segundos
+        }
+
+        function startExpirationTimer() {
+            // Configura o contador regressivo
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                secondsRemaining--;
+                updateTimerDisplay();
+                
+                if (secondsRemaining <= 0) {
+                    cancelPayment();
+                }
+            }, 1000);
+            
+            // Configura o timeout de 10 minutos
+            paymentTimeoutId = setTimeout(() => {
+                cancelPayment();
+            }, timeoutMinutes * 60 * 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(secondsRemaining / 60);
+            const seconds = secondsRemaining % 60;
+            document.getElementById('timeRemaining').textContent = 
+                `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            
+            // Mudar cor para vermelho quando faltar 1 minuto
+            if (secondsRemaining <= 60) {
+                document.getElementById('timeRemaining').style.color = '#ff3333';
+            }
+        }
+        
+        function cancelPayment() {
+            // Limpar intervalos e timeouts
+            clearInterval(checkPaymentInterval);
+            clearInterval(timerInterval);
+            clearTimeout(paymentTimeoutId);
+            
+            // Cancelar transação no servidor
+            fetch(`/api/cancel-transaction/${currentTransactionId}`, {
+                method: 'POST'
+            }).catch(error => console.error('Erro ao cancelar transação:', error));
+            
+            // Mostrar mensagem de cancelamento
+            document.getElementById('paymentSection').style.display = 'none';
+            document.getElementById('canceledMessage').style.display = 'block';
+        }
+
+        async function checkPaymentStatus() {
+            try {
+                const response = await fetch(`/api/check-payment-status/${currentTransactionId}`);
+                const data = await response.json();
+                
+                if (data.success && data.status === 'confirmed') {
+                    // Limpar o temporizador de expiração
+                    clearInterval(timerInterval);
+                    clearTimeout(paymentTimeoutId);
+                    clearInterval(checkPaymentInterval);
+                    
+                    // Atualizar o botão de simulação para "Concluído"
+                    const simulateBtn = document.getElementById('simulatePaymentBtn');
+                    if (simulateBtn) {
+                        simulateBtn.disabled = true;
+                        simulateBtn.classList.remove('processing');
+                        simulateBtn.classList.add('success');
+                        simulateBtn.innerHTML = '<i class="fas fa-check"></i> Pagamento Concluído';
+                    }
+                    
+                    showSuccessMessage();
+                }
+            } catch (error) {
+                console.error('Erro ao verificar pagamento:', error);
+            }
+        }
+
+        function showSuccessMessage() {
+            // Mostrar mensagem de sucesso
+            document.getElementById('paymentSection').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'block';
+            
+            // Registrar conversão (opcional)
+            if (typeof gtag === 'function') {
+                gtag('event', 'purchase', {
+                    transaction_id: currentTransactionId,
+                    value: 10.00,
+                    currency: 'BRL',
+                    items: [{
+                        item_name: 'TicketBot Pro - Plano Básico',
+                        price: 10.00
+                    }]
+                });
+            }
+        }
+
+        function copyPixKey() {
+            const pixKey = document.getElementById('pixKey');
+            pixKey.select();
+            document.execCommand('copy');
+            
+            const button = event.currentTarget;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        }
+        
+        function copyPixPayload() {
+            const pixPayload = document.getElementById('pixPayload');
+            pixPayload.select();
+            document.execCommand('copy');
+            
+            const button = event.currentTarget;
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i> Copiado!';
+            
+            setTimeout(() => {
+                button.innerHTML = originalText;
+            }, 2000);
+        }
+
+        // Código para permitir habilitar o botão de teste apenas quando necessário
+        // Para habilitar o botão, digite 'enableTestMode()' no console do navegador
+        function enableTestMode() {
+            document.querySelector('.test-payment').style.display = 'block';
+            console.log('Modo de teste ativado');
+        }
+
+        // Apenas para testes - remover em produção
+        document.getElementById('simulatePaymentBtn').addEventListener('click', async function() {
+            if (!currentTransactionId) return;
+            
+            try {
+                // Alterar visual do botão para indicar processamento
+                this.disabled = true;
+                this.classList.add('processing');
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                
+                const response = await fetch('/api/simulate-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        transactionId: currentTransactionId
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!data.success) {
+                    // Restaurar botão se o servidor reportar falha
+                    this.disabled = false;
+                    this.classList.remove('processing');
+                    this.innerHTML = '<i class="fas fa-magic"></i> Simular Pagamento (Teste)';
+                }
+            } catch (error) {
+                console.error('Erro ao simular pagamento:', error);
+                // Restaurar botão em caso de erro
+                this.disabled = false;
+                this.classList.remove('processing');
+                this.innerHTML = '<i class="fas fa-magic"></i> Simular Pagamento (Teste)';
+            }
+        });
+
+        function cancelAndReturn() {
+            // Mostrar modal customizada em vez do confirm padrão
+            document.getElementById('cancelModal').style.display = 'flex';
+        }
+
+        // Configurar botões da modal
+        document.getElementById('confirmCancel').addEventListener('click', function() {
+            // Esconder modal
+            document.getElementById('cancelModal').style.display = 'none';
+            
+            // Limpar intervalos e timeouts
+            clearInterval(checkPaymentInterval);
+            clearInterval(timerInterval);
+            clearTimeout(paymentTimeoutId);
+            
+            // Cancelar transação no servidor
+            if (currentTransactionId) {
+                fetch(`/api/cancel-transaction/${currentTransactionId}`, {
+                    method: 'POST'
+                }).catch(error => console.error('Erro ao cancelar transação:', error));
+            }
+            
+            // Voltar para a página inicial
+            window.location.href = 'index.html';
+        });
+
+        document.getElementById('cancelCancel').addEventListener('click', function() {
+            // Apenas esconder a modal
+            document.getElementById('cancelModal').style.display = 'none';
+        });
+
+        // Fechar modal se clicar fora dela
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('cancelModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 
