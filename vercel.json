@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "buildCommand": "",
+  "outputDirectory": "site",
+  "installCommand": "",
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/api/(.*)", "dest": "/site/backend/server.js" },
+    { "src": "/(.*)", "dest": "/site/$1" }
+  ]
+}
